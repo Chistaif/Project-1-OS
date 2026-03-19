@@ -5,6 +5,8 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+// ---System call procinfo---
+#include "procinfo.h"
 
 struct cpu cpus[NCPU];
 
@@ -695,4 +697,47 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+// ---System call procinfo---
+int getprocinfo(int pid, uint64 info_addr){
+    struct proc *p;
+    struct procinfo info;
+    int found = 0;
+
+    // Duyệt qua toàn bộ bảng tiến trình
+    for(p = proc; p < &proc[NPROC]; p++){
+        acquire(&p->lock); // Khóa tiến trình lại khi đang đọc
+        if(p->pid == pid) {
+            found = 1;
+            info.pid = p->pid;
+            info.state = p->state;
+            info.sz = p->sz;
+            safestrcpy(info.name, p->name, sizeof(info.name));
+
+            // Lấy ID của tiến trình cha
+            if(p->parent){
+                info.ppid = p->parent->pid;
+            } 
+            else{
+                info.ppid = 0;
+            }
+
+            release(&p->lock); // Đọc xong thì nhả khóa
+            break;
+        }
+        release(&p->lock);
+    }
+
+    if(!found){
+        return -1; // Không tìm thấy tiến trình có PID tương ứng
+    }
+
+    // Đẩy dữ liệu (info) từ Kernel ra địa chỉ bộ nhớ (info_addr) của User
+    struct proc *curr_proc = myproc();
+    if(copyout(curr_proc->pagetable, info_addr, (char *)&info, sizeof(info)) < 0){
+        return -1;
+    }
+
+    return 0;
 }

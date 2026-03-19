@@ -5,6 +5,8 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+// ---System call procinfo---
+#include "procinfo.h"
 
 uint64
 sys_exit(void)
@@ -105,4 +107,19 @@ sys_trace(void)
   myproc()->tracemask = mask;
   
   return 0;
+}
+
+// ---System call procinfo---
+uint64 
+sys_procinfo(void)
+{
+    int pid;
+    uint64 info_addr; // Địa chỉ con trỏ struct procinfo truyền từ user-space
+
+    // Lấy tham số thứ 1 (pid) và thứ 2 (địa chỉ con trỏ info)
+    argint(0, &pid);
+    argaddr(1, &info_addr);
+
+    // Gọi hàm xử lý chính
+    return getprocinfo(pid, info_addr);
 }

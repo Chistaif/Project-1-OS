@@ -22,3 +22,5 @@
 #define SYS_close  21
 // ---System call tracing---
 #define SYS_trace  22
+// ---System call procinfo---
+#define SYS_procinfo 23

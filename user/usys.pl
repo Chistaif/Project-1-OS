@@ -38,3 +38,5 @@ entry("sleep");
 entry("uptime");
 # ---System call tracing---
 entry("trace");
+# ---System call procinfo---
+entry("procinfo");
