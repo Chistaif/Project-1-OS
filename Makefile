@@ -199,6 +199,7 @@ UPROGS=\
 	$U/_trace\
 	$U/_procinfo_test\
 
+
 ifeq ($(LAB),syscall)
 UPROGS += \
 	$U/_attack\
