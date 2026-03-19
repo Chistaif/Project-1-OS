@@ -1,6 +1,7 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
-#include "kernel/fs.h" 
+#include "kernel/fs.h"
+#include "kernel/fcntl.h" 
 #include "user/user.h"
 
 #define MAXBUFF 512
@@ -9,7 +10,7 @@ void tree(char *path, int depth);
 
 int main(int argc, char *argv[]) {
     if (argc > 2) {
-        fprintf(2, "Usage: %s [directory_name]", argv[0]);
+        fprintf(2, "Usage: %s [directory_name]\n", argv[0]);
         exit(1);
     }
 
@@ -32,7 +33,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    printf("%s/\n", path);
+    printf("%s\n", path);
     tree(path, 0);
 
     exit(0);
@@ -61,8 +62,10 @@ void tree(char *path, int depth) {
         */
         if (object.inum == 0) continue;     // bo qua file trong
         
-        char fname[DIRSIZ];   // lay ten file/folder
-        strncpy(fname, object.name, DIRSIZ);
+        char fname[DIRSIZ + 1];   // lay ten file/folder
+        memmove(fname, object.name, DIRSIZ);
+        fname[DIRSIZ] = '\0'; // Đảm bảo chuỗi luôn có ký tự \0 an toàn
+
         if (strcmp(fname, ".") == 0 || strcmp(fname, "..") == 0) continue;  // tranh lap vo tan
 
         /*
@@ -72,7 +75,13 @@ void tree(char *path, int depth) {
             fprintf(2, "tree: path too long\n");
             continue;
         }
-        sprintf(child, "%s/%s", path, fname);
+        
+        // Tự nối chuỗi thay vì dùng sprintf
+        strcpy(child, path);
+        char *p = child + strlen(child);
+        *p++ = '/';
+        memmove(p, fname, strlen(fname));
+        p[strlen(fname)] = '\0';
 
         /*
         Lay thong tin file/folder
