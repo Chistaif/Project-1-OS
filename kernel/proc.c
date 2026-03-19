@@ -310,6 +310,9 @@ fork(void)
 
   safestrcpy(np->name, p->name, sizeof(p->name));
 
+  // ---System call tracing---
+  np->tracemask = p->tracemask;
+
   pid = np->pid;
 
   release(&np->lock);

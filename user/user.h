@@ -23,6 +23,10 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 
+// ---System call tracing---
+int trace(int mask);
+// -------------------------
+
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);

@@ -91,3 +91,18 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// ---System call tracing---
+uint64
+sys_trace(void)
+{
+    int mask;
+  
+  // Lấy tham số 'mask' (ở vị trí số 0) từ user space truyền vào
+  argint(0, &mask);
+    
+  // Lưu giá trị mask vào biến tracemask của tiến trình hiện tại
+  myproc()->tracemask = mask;
+  
+  return 0;
+}
